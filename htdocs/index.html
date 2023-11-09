@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>WebSocket Example</title>
+    </head>
+    <body>
+        <label for="messageInput">Message:</label>
+        <input type="text" id="messageInput"/>
+        <button onclick="sendMessage()">Senden</button>
+        <br/>
+        <br/>
+        <div id="response"></div>
+
+        <script type="text/javascript">
+
+            const socket = new WebSocket("ws://pysock.local/websocket");
+            const responseDiv = document.getElementById("response");
+
+            socket.onclose = function (event) {
+                const resLine = document.createElement("div");
+                resLine.innerHTML = "Websocket connection closed:" + event;
+                responseDiv.append(resLine);
+            };
+
+            socket.onopen = function (event) {
+                const resLine = document.createElement("div");
+                resLine.innerHTML = "Websocket connection opened.";
+                responseDiv.append(resLine);
+            };
+
+            socket.onmessage = function (event) {
+                const resLine = document.createElement("div");
+                resLine.innerHTML = "Server says: \"" + event.data + "\"";
+                responseDiv.append(resLine);
+            };
+
+            function sendMessage() {
+                const messageInput = document.getElementById("messageInput");
+                const message = messageInput.value;
+                socket.send(message);
+                messageInput.value = "";
+            }
+
+        </script>
+    </body>
+</html>

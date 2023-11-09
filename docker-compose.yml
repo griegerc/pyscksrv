@@ -1,0 +1,44 @@
+version: "3.2"
+
+services:
+  pysock-traefik:
+    container_name: "pysock-traefik"
+    image: "traefik:2.4"
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - 80:80
+      - 8080:8080
+      - 8765:8765
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  pysock-nginx:
+    container_name: "pysock-nginx"
+    image: "pysock-nginx:1.23.2-alpine"
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./htdocs:/var/www/pysock
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pysock-nginx.rule=Host(`pysock.local`)"
+      - "traefik.http.routers.pysock-nginx.entrypoints=web"
+
+  pysock-python:
+    container_name: "pysock-python"
+    image: "pysock-python:3.9.18"
+    build:
+      context: .
+      dockerfile: docker/python/Dockerfile
+    volumes:
+      - ./server:/pysock
+    labels:
+      - "traefik.enable=true"
