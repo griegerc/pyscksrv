@@ -1,4 +1,4 @@
-FROM python:3.9.18
+FROM python:3.12.0
 
 RUN echo 'alias ll="ls -la"' >> ~/.bashrc
 RUN apt-get update
